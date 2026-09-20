@@ -1,0 +1,41 @@
+LIVE OWNER DASHBOARD — NETLIFY DEPLOYMENT
+
+The owner dashboard now retrieves new Netlify Forms submissions automatically.
+It refreshes every 15 seconds and can also be refreshed manually.
+
+IMPORTANT
+Do not drag only the dist folder into Netlify Drop. Drag-and-drop does not build
+the protected Netlify Function used by the dashboard. Deploy the extracted
+project through a connected Git repository or Netlify CLI.
+
+ONE-TIME NETLIFY SETTINGS
+
+1. Open Site configuration > Environment variables.
+2. Add NETLIFY_SITE_ID using the site's API ID shown under Site details.
+3. Create a Netlify personal access token under User settings > Applications.
+4. Add it as NETLIFY_ACCESS_TOKEN and mark it secret/sensitive.
+5. Ensure the invited account has the owner role in Identity.
+6. Ensure Forms detection is enabled and the form ahp-survey is listed.
+
+DEPLOY WITH NETLIFY CLI
+
+1. Extract this ZIP.
+2. Open a terminal in the extracted kobo-ahp-web-survey folder.
+3. Run: npm install
+4. Run: npm run build
+5. Run: npx netlify-cli login
+6. Run: npx netlify-cli link
+7. Choose the existing surveyahp site when prompted.
+8. Run: npx netlify-cli deploy --prod
+
+TEST
+
+1. Submit one pilot questionnaire.
+2. Sign in at https://surveyahp.netlify.app/login.html.
+3. Open https://surveyahp.netlify.app/owner/.
+4. The response should appear automatically within 15 seconds.
+
+SECURITY
+
+Never put NETLIFY_ACCESS_TOKEN in app.js, owner.js, HTML, or any public file.
+The supplied function checks the signed-in user's owner role before returning data.

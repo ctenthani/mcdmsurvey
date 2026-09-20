@@ -1,0 +1,22 @@
+NETLIFY IDENTITY SETUP
+
+1. Deploy the extracted project through a connected Git repository or Netlify CLI. Do not use Netlify Drop because the live owner dashboard requires a server-side function.
+2. In Netlify, open Project configuration > Identity and select Enable Identity.
+3. Under Registration preferences, select Invite only.
+4. Invite each authorised user from the Identity users page.
+5. Assign one of these roles to each user:
+   - framework: may open /portal/ and read the complete worked framework.
+   - owner: may open /portal/ and /owner/, retrieve live Netlify Forms submissions, and calculate weights.
+6. Ask the user to follow the invitation email, create a password, and sign in at /login.html.
+7. If a role is changed, ask the user to sign out and sign in again so the refreshed token contains the new role.
+
+IMPORTANT
+- HTTPS is required. The normal *.netlify.app address already uses HTTPS.
+- The public questionnaire remains at /index.html.
+- The public site exposes only the questionnaire. The framework and analysis pages are not linked from any public page.
+- Netlify's role-based redirect rules protect /portal/* and /owner/* at the CDN edge.
+- The owner dashboard is stored only under /owner/; no root owner.html alias is included because Netlify Pretty URLs can otherwise resolve the alias before the protected directory.
+- Invitation links that return to the questionnaire are forwarded automatically to the private account-activation page.
+- Add NETLIFY_SITE_ID and secret NETLIFY_ACCESS_TOKEN environment variables before deployment. The access token stays in the server-side function and must never be added to public JavaScript or HTML.
+- The dashboard retrieves new submissions every 15 seconds. CSV import remains available as a backup.
+- The current weighted result is saved in the owner's browser local storage so the protected framework page can display it.

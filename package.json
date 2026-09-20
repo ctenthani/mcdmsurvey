@@ -1,0 +1,9 @@
+{
+  "scripts": {
+    "build": "esbuild src/auth.js --bundle --minify --format=iife --outfile=dist/auth.js"
+  },
+  "devDependencies": {
+    "@netlify/identity": "^2.0.0",
+    "esbuild": "^0.28.2"
+  }
+}

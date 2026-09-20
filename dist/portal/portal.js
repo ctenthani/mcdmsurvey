@@ -1,0 +1,7 @@
+"use strict";
+const root=document.getElementById("workedFramework");
+const saved=localStorage.getItem("ahpAggregatedFramework");
+let weights={};
+if(saved){try{const parsed=JSON.parse(saved);for(const row of parsed.criteria||[])weights[row.code]={local:row.local,global:row.global,status:row.status};document.getElementById("workedStatus").textContent=`Expert-derived weights loaded from this browser (${parsed.records||0} readable submissions).`;document.getElementById("workedStatus").classList.add("result-available");}catch{} }
+root.innerHTML=window.FRAMEWORK.map(block=>`<section class="framework-block"><header><span class="framework-code">${block.code}</span><div><h2>${esc(block.name)}</h2><p>${esc(block.definition)}</p></div><span class="weight-empty">${block.id==='dim'?'Hierarchy level':'Detailed criteria'}</span></header><div class="framework-items">${block.items.map(item=>{const w=weights[item[0]];return`<article><div class="criterion-title"><span>${esc(item[0].toUpperCase())}</span><h3>${esc(item[1])}</h3></div><p>${esc(item[2])}</p><p class="source-basis"><strong>Evidence basis:</strong> ${esc(item[3])}</p>${w&&w.status==='Calculated'?`<div class="portal-weights"><span>Local ${(w.local*100).toFixed(1)}%</span><span>Global ${(w.global*100).toFixed(2)}%</span></div>`:`<span class="no-data-flag">Expert weight not yet available</span>`}</article>`}).join('')}</div></section>`).join('');
+function esc(v){return String(v??"").replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[c]));}

@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Stakeholder pairwise-comparison survey for assessing the sustainability of standalone solar photovoltaic projects in Malawi.">
+  <meta name="theme-color" content="#092f38">
+  <title>Malawi Solar PV Sustainability | Stakeholder Weighting Survey</title>
+  <script src="invite-entry.js"></script>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to questionnaire</a>
+
+  <header class="site-header">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">MW</span>
+      <div>
+        <p class="eyebrow">Research questionnaire</p>
+        <p class="brand-title">Solar PV sustainability in Malawi</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <div class="save-state" id="saveState" role="status" aria-live="polite">Draft saved on this device</div>
+    </div>
+  </header>
+
+  <div class="progress-track" aria-hidden="true"><span id="overallProgress"></span></div>
+
+  <main id="main" class="app-shell">
+    <aside class="step-panel" aria-label="Questionnaire sections">
+      <div class="completion-ring" id="completionRing">
+        <span id="completionValue">0%</span>
+        <small>complete</small>
+      </div>
+      <nav id="stepNav"></nav>
+      <button class="text-button" id="clearDraft" type="button">Clear saved draft</button>
+    </aside>
+
+    <section class="workspace">
+      <div id="screen" aria-live="polite"></div>
+      <div class="workspace-actions">
+        <button class="button secondary" id="backButton" type="button">Back</button>
+        <button class="button primary" id="nextButton" type="button">Continue</button>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>This instrument records expert judgements for research purposes. Formal consistency is evaluated at CR ≤ 0.10.</p>
+  </footer>
+
+  <!-- Netlify reads this static form during deployment. The visible questionnaire posts to this schema. -->
+  <form name="ahp-survey" method="POST" data-netlify="true" netlify-honeypot="bot-field" hidden>
+    <input type="hidden" name="form-name" value="ahp-survey">
+    <input name="bot-field">
+    <input name="consent">
+    <input name="respondent_code">
+    <input name="stakeholder_group">
+    <input name="organisation">
+    <input name="job_role">
+    <input name="energy_experience">
+    <input name="sector_involvement">
+    <input name="decision_role">
+    <input name="time_commitment">
+    <input name="conflict_interest">
+    <input name="ahp_familiarity">
+    <input name="district">
+    <input name="assigned_modules">
+    <input name="comments">
+    <textarea name="responses_json"></textarea>
+    <textarea name="weights_json"></textarea>
+    <textarea name="cr_json"></textarea>
+    <input name="started_at">
+    <input name="submitted_at">
+    <input name="instrument_version">
+  </form>
+
+  <noscript><p class="noscript">JavaScript is required because the questionnaire calculates AHP consistency while you respond.</p></noscript>
+</body>
+</html>

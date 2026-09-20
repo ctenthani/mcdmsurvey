@@ -1,0 +1,6 @@
+/framework.html  /index.html  302!
+/owner/*  /owner/:splat  200!  Role=owner
+/owner/*  /login.html?next=/owner/  401!
+/portal/*  /portal/:splat  200!  Role=framework,owner
+/portal/*  /login.html  401!
+/*  /index.html  200
