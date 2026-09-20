@@ -420,7 +420,7 @@ function renderSubmit() {
     <div class="field full"><label for="comments">Comments on the criteria, instructions or comparisons</label><textarea id="comments" name="comments" placeholder="Optional: explain any ambiguous or missing criterion.">${escapeHtml(state.comments)}</textarea></div>
     <p class="hint">When you submit, the deployed Netlify site will store the response in its Forms area. You can also download a JSON research record as a backup.</p>
     <a href="#" id="downloadBackup" class="download-link">Download my response record</a>
-    ${state.submitted?'<div class="submission-card success" role="status"><h2>Response submitted</h2><p>Thank you. Do not submit the questionnaire again unless the research team asks you to repeat it.</p></div>':''}
+    ${state.submitted?'<div class="submission-card success" role="status"><h2>Response submitted</h2><p>Thank you. This response has been recorded.</p><button class="button secondary" id="newResponse" type="button">Start a new response</button></div>':''}
     ${validationMessage?`<p class="validation-summary" role="alert">${escapeHtml(validationMessage)}</p>`:""}`;
 }
 
@@ -448,6 +448,7 @@ function wireScreen() {
   } else {
     document.getElementById("comments")?.addEventListener("input",e=>{state.comments=e.target.value;saveState();});
     document.getElementById("downloadBackup")?.addEventListener("click",e=>{e.preventDefault();downloadBackup();});
+    document.getElementById("newResponse")?.addEventListener("click",startNewResponse);
   }
 }
 
@@ -506,6 +507,15 @@ function researchRecord() {
   return {instrumentVersion:VERSION, startedAt:state.startedAt, submittedAt:new Date().toISOString(), profile:state.profile, assignedModules:applicableBlocks().map(b=>b.id), answers:state.answers, analyses, comments:state.comments};
 }
 
+function startNewResponse() {
+  if (!window.confirm("Start a new questionnaire? The submitted response will remain in Netlify Forms, but the saved answers on this device will be cleared.")) return;
+  localStorage.removeItem(STORAGE_KEY);
+  state=blankState();
+  validationMessage="";
+  render();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
 function downloadBackup() {
   const blob=new Blob([JSON.stringify(researchRecord(),null,2)],{type:"application/json"});
   const url=URL.createObjectURL(blob), a=document.createElement("a");
@@ -516,20 +526,21 @@ async function submitSurvey() {
   if (!applicableBlocks().every(blockPassed)) {validationMessage="Return to any assigned section without a passed consistency check before submitting.";render();return;}
   nextButton.disabled=true;nextButton.textContent="Submitting…";
   const record=researchRecord();
+  const submissionId=(window.crypto&&crypto.randomUUID)?crypto.randomUUID():`${Date.now()}-${Math.random().toString(36).slice(2)}`;
   const payload={
     "form-name":"ahp-survey", consent:state.consent, ...state.profile, comments:state.comments,
     assigned_modules:record.assignedModules.join(","),
     responses_json:JSON.stringify(record.answers),
     weights_json:JSON.stringify(Object.fromEntries(Object.entries(record.analyses).map(([k,v])=>[k,v.weights]))),
     cr_json:JSON.stringify(Object.fromEntries(Object.entries(record.analyses).map(([k,v])=>[k,v.cr]))),
-    started_at:record.startedAt, submitted_at:record.submittedAt, instrument_version:VERSION
+    started_at:record.startedAt, submitted_at:record.submittedAt, instrument_version:VERSION, submission_id:submissionId
   };
   try {
-    const response=await fetch("/",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:new URLSearchParams(payload).toString()});
-    if (!response.ok) throw new Error("Submission was not accepted");
+    const response=await fetch("/",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded","Accept":"application/json"},body:new URLSearchParams(payload).toString()});
+    if (!response.ok) {const detail=await response.text().catch(()=>"");throw new Error(`Netlify returned ${response.status}${detail?`: ${detail.slice(0,120)}`:""}`);}
     state.submitted=true;saveState();validationMessage="";render();window.scrollTo({top:0,behavior:"smooth"});
-  } catch (_) {
-    validationMessage="The response could not be submitted. Check the internet connection and confirm that Netlify Forms is enabled, then try again. You may download the response record as a backup.";
+  } catch (error) {
+    validationMessage=`The response could not be submitted (${error.message}). Confirm that the form “ahp-survey” appears in Netlify Forms and that the current package was redeployed after Forms detection was enabled. You may download the response record as a backup.`;
     nextButton.disabled=false;nextButton.textContent="Submit response";render();
   }
 }
