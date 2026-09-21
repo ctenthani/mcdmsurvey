@@ -10,12 +10,28 @@ project through a connected Git repository or Netlify CLI.
 
 ONE-TIME NETLIFY SETTINGS
 
-1. Open Site configuration > Environment variables.
-2. Add NETLIFY_SITE_ID using the site's API ID shown under Site details.
-3. Create a Netlify personal access token under User settings > Applications.
-4. Add it as NETLIFY_ACCESS_TOKEN and mark it secret/sensitive.
-5. Ensure the invited account has the owner role in Identity.
-6. Ensure Forms detection is enabled and the form ahp-survey is listed.
+1. Find the Site ID (now labelled Project ID in the Netlify interface):
+   - Open the surveyahp project.
+   - Select Project configuration > General > Project details.
+   - Under Project information, copy Project ID.
+   - This UUID-like value is the same identifier that Netlify documentation
+     calls site_id, Site ID or NETLIFY_SITE_ID. Do not use the project name,
+     deploy ID, form ID or surveyahp.netlify.app URL.
+2. Create the access token:
+   - Select your profile/avatar > User settings > Applications.
+   - Under Personal access tokens, select New access token.
+   - Give it a descriptive name such as surveyahp-owner-dashboard.
+   - Select an appropriate expiration date, generate it and copy it immediately.
+     Netlify will not display the full value again.
+3. Open the surveyahp project and select Project configuration > Environment variables.
+4. Add NETLIFY_SITE_ID and paste the Project ID as its value.
+5. Add NETLIFY_ACCESS_TOKEN and paste the personal access token as its value.
+   Mark the token secret/sensitive. Never prefix it with Bearer and do not add
+   quotation marks; the server-side function adds the Authorization header.
+6. Set the variables for Production, or for all deploy contexts if preferred.
+7. Trigger a fresh production deployment so the function receives the variables.
+8. Ensure the invited account has the owner role in Identity.
+9. Ensure Forms detection is enabled and the form ahp-survey is listed.
 
 DEPLOY WITH NETLIFY CLI
 
@@ -34,6 +50,24 @@ TEST
 2. Sign in at https://surveyahp.netlify.app/login.html.
 3. Open https://surveyahp.netlify.app/owner/.
 4. The response should appear automatically within 15 seconds.
+
+VERIFY FORM FIELD DETECTION
+
+After deploying, open Forms > ahp-survey and inspect the detected fields. The
+form should include respondent_code, stakeholder_group, responses_json,
+weights_json, cr_json, submitted_at and submission_id. Submit a pilot response
+and confirm that these fields contain values.
+
+If Netlify creates a submission with no field values, the form event reached
+Netlify but the deployed field schema was stale or did not match the posted
+payload. Do the following:
+
+1. Confirm Forms > Form detection is enabled.
+2. Redeploy this complete updated project after enabling detection.
+3. Confirm the production deploy includes dist/index.html, not an older ZIP.
+4. Open Forms > ahp-survey and check that the fields listed above are detected.
+5. Delete or disregard the earlier empty pilot record; it cannot be repaired
+   because it contains no captured answers.
 
 SECURITY
 

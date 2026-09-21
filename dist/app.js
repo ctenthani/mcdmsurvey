@@ -536,7 +536,17 @@ async function submitSurvey() {
     started_at:record.startedAt, submitted_at:record.submittedAt, instrument_version:VERSION, submission_id:submissionId
   };
   try {
-    const response=await fetch("/",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded","Accept":"application/json"},body:new URLSearchParams(payload).toString()});
+    const netlifyForm=document.getElementById("netlifySurveyForm");
+    if(!netlifyForm)throw new Error("the deployed Netlify form schema is missing");
+    for(const [name,rawValue] of Object.entries(payload)){
+      const control=netlifyForm.elements.namedItem(name);
+      if(control)control.value=rawValue==null?"":String(rawValue);
+    }
+    const formData=new FormData(netlifyForm);
+    const encoded=new URLSearchParams();
+    for(const [name,formValue] of formData.entries())encoded.append(name,String(formValue));
+    if(!encoded.get("responses_json")||!encoded.get("cr_json")||!encoded.get("submission_id"))throw new Error("the submission payload failed its local completeness check");
+    const response=await fetch("/",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:encoded.toString()});
     if (!response.ok) {const detail=await response.text().catch(()=>"");throw new Error(`Netlify returned ${response.status}${detail?`: ${detail.slice(0,120)}`:""}`);}
     state.submitted=true;saveState();validationMessage="";render();window.scrollTo({top:0,behavior:"smooth"});
   } catch (error) {
