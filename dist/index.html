@@ -52,9 +52,8 @@
   </footer>
 
   <!-- Netlify reads this static form during deployment. The visible questionnaire posts to this schema. -->
-  <form id="netlifySurveyForm" name="ahp-survey" method="POST" data-netlify="true" netlify-honeypot="bot-field" hidden>
+  <form id="netlifySurveyForm" name="ahp-survey" method="POST" data-netlify="true" hidden>
     <input type="hidden" name="form-name" value="ahp-survey">
-    <input name="bot-field">
     <input name="consent">
     <input name="respondent_code">
     <input name="stakeholder_group">

@@ -69,6 +69,19 @@ payload. Do the following:
 5. Delete or disregard the earlier empty pilot record; it cannot be repaired
    because it contains no captured answers.
 
+FALSE SPAM CLASSIFICATION
+
+If the Forms page says "No remaining verified submissions" and reports that
+submissions were deleted or marked as spam, use the dropdown currently labelled
+Verified submissions and switch to Spam submissions. Open the pilot record and,
+if its fields contain the answers, mark it as verified. It should then become
+available to the owner dashboard on its next refresh.
+
+The questionnaire no longer declares a honeypot field. Netlify's other spam
+controls remain available, but the hidden JavaScript submission cannot now be
+misclassified because of the custom bot-field mechanism. A fresh deployment is
+required for Netlify to rescan this change.
+
 SECURITY
 
 Never put NETLIFY_ACCESS_TOKEN in app.js, owner.js, HTML, or any public file.

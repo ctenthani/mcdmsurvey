@@ -143,6 +143,15 @@
 .csv-fallback .upload-zone { margin-top: .7rem; }
 .recent-table { margin-bottom: 1.4rem; }
 .recent-table td:first-child { white-space: nowrap; }
+.framework-graphic-panel { margin-top: 1.25rem; }
+.graphic-heading { display: flex; justify-content: space-between; gap: 1rem; align-items: flex-start; }
+.graphic-heading h2 { margin-top: .2rem; }
+.graphic-heading p { color: var(--muted); }
+.graphic-actions { display: flex; gap: .55rem; flex-wrap: wrap; justify-content: flex-end; }
+.framework-svg-wrap { margin-top: 1rem; overflow-x: auto; border: 1px solid var(--line); border-radius: 13px; background: #fff; }
+.framework-svg-wrap svg { display: block; width: 100%; min-width: 1180px; height: auto; }
+.graphic-note { margin-bottom: 0; color: var(--muted); font-size: .86rem; }
+.graphic-actions .active { color: white; background: var(--teal); border-color: var(--teal); }
 .metric-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -218,6 +227,8 @@
   .coverage-table {
     font-size: 0.85rem;
   }
+  .graphic-heading { display: block; }
+  .graphic-actions { justify-content: flex-start; }
 }
 
 .auth-shell {
