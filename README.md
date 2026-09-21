@@ -27,8 +27,9 @@ The owner page aggregates accepted individual matrices by geometric mean, recalc
 - Weights use row geometric means; CR uses Saaty's random indices: 0.90 (n=4), 1.12 (n=5), and 1.24 (n=6).
 - Respondents select the more important item and an intensity from the 1–9 scale; reciprocal entries are generated automatically.
 - Eligibility requires at least two years of relevant experience, current or recent sector involvement, a decision-making or advisory role, adequate time, and no relevant project-level conflict.
-- All eligible respondents complete the dimension matrix. Within-dimension modules are assigned automatically from the stakeholder pools specified in Paper Two.
-- A ? control beside every dimension and subcriterion displays its Malawi-contextualised definition from Paper Two.
+- All eligible respondents complete the dimension matrix. Within-dimension modules are assigned automatically according to their selected stakeholder group and domain expertise.
+- A ? control beside every dimension and subcriterion displays its detailed Malawi-contextualised definition.
+- The questionnaire displays a stakeholder-specific completion estimate after category selection: government/regulatory and academic/research respondents, 12–18 minutes; NGO/development-partner respondents, 14–20 minutes; private-sector respondents, 10–15 minutes; and community representatives, 11–17 minutes. These estimates reflect the assigned number of pairwise comparisons and allow time for definitions and consistency review.
 
 ## Data protection
 

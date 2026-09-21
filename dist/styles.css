@@ -149,6 +149,8 @@ input:focus, select:focus, textarea:focus, button:focus-visible { outline: 3px s
 .eligibility-status.eligible { color: #0e5e49; background: var(--green-soft); border: 1px solid #93cbb9; }
 .eligibility-status.ineligible { color: #8f2933; background: var(--red-soft); border: 1px solid #e0a7ad; }
 .module-assignment { margin-top: 1rem; padding: .9rem 1rem; border-left: 4px solid var(--teal); background: var(--teal-soft); }
+.module-assignment p { margin: 0; }
+.module-assignment p + p { margin-top: .45rem; }
 
 .matrix-topline { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin: 1rem 0; }
 .counter { flex: 0 0 auto; padding: .45rem .75rem; border-radius: 999px; color: var(--deep); background: #e7eef0; font-weight: 800; font-size: .9rem; }

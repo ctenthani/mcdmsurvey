@@ -1,6 +1,6 @@
 "use strict";
 
-const VERSION = "2026.09.21-v2";
+const VERSION = "2026.09.21-v3";
 const STORAGE_KEY = "malawi-solar-ahp-survey-v2";
 const CR_LIMIT = 0.10;
 const INTENSITIES = [
@@ -85,6 +85,14 @@ const BLOCKS = [
 const MODULES_BY_STAKEHOLDER = {
   government: ["org","env","policy"], academia: ["tech","env","policy"],
   ngo: ["econ","social","org"], private: ["tech","econ"], community: ["social","org"]
+};
+
+const COMPLETION_ESTIMATES = {
+  government: {minutes:"12–18 minutes", comparisons:37},
+  academia: {minutes:"12–18 minutes", comparisons:37},
+  ngo: {minutes:"14–20 minutes", comparisons:41},
+  private: {minutes:"10–15 minutes", comparisons:31},
+  community: {minutes:"11–17 minutes", comparisons:35}
 };
 
 const STEPS = [{id:"intro", short:"Start", title:"Instructions and profile"}, ...BLOCKS, {id:"submit", short:"Submit", title:"Final review"}];
@@ -212,7 +220,7 @@ function eligibilityStatus() {
   const p=state.profile;
   const answered=[p.energy_experience,p.sector_involvement,p.decision_role,p.time_commitment,p.conflict_interest].every(Boolean);
   if (!answered) return {decided:false,eligible:false,reason:"Complete the eligibility questions."};
-  if (p.energy_experience === "lt2") return {decided:true,eligible:false,reason:"Paper Two requires at least two years of relevant off-grid solar PV experience."};
+  if (p.energy_experience === "lt2") return {decided:true,eligible:false,reason:"This study requires at least two years of relevant off-grid solar PV experience."};
   if (p.sector_involvement !== "yes") return {decided:true,eligible:false,reason:"Eligible respondents must have current or recent involvement in standalone solar PV design, implementation, regulation, financing or governance."};
   if (p.decision_role !== "yes") return {decided:true,eligible:false,reason:"Eligible respondents must hold a decision-making or advisory role relevant to the sector."};
   if (p.time_commitment !== "yes") return {decided:true,eligible:false,reason:"The protocol requires sufficient time to complete the assigned comparison modules."};
@@ -269,10 +277,11 @@ function renderNav() {
 
 function renderIntro() {
   const p=state.profile;
+  const estimate=COMPLETION_ESTIMATES[p.stakeholder_group];
   return `<div class="workspace-header">
     <p class="section-kicker">Before you begin</p>
     <h1>Make each comparison as an expert judgement</h1>
-    <p class="lead">This questionnaire estimates the relative importance of sustainability criteria for standalone solar photovoltaic projects in Malawi. Completion normally takes 45–60 minutes.</p>
+    <p class="lead">This questionnaire estimates the relative importance of sustainability criteria for standalone solar photovoltaic projects in Malawi. Your estimated completion time will appear after you select your stakeholder group.</p>
   </div>
   <div class="instruction-grid">
     <article class="info-card"><h2>How to compare</h2><ul>
@@ -280,7 +289,7 @@ function renderIntro() {
       <li>First identify whether A or B is more important, or whether they are equal.</li>
       <li>Equal importance is recorded as 1. If one term is more important, rate the strength from 2 to 9.</li>
       <li>The reverse entry is calculated automatically. For example, A = 5 relative to B means B = 1/5 relative to A.</li>
-      <li>Select the ? beside any term to read its Paper Two definition before judging it.</li>
+      <li>Select the ? beside any term to read its detailed definition before judging it.</li>
     </ul></article>
     <article class="info-card"><h2>What the consistency feedback means</h2><p>Formal CR requires every comparison in a section. Before then, the page checks completed three-item cycles and warns when they conflict. Once the matrix is complete, CR updates instantly. CR ≤ 0.10 is required to continue.</p></article>
     <article class="info-card example-card"><h2>Worked example</h2><p>If Technical Performance is strongly more important than Environmental Appropriateness, select Technical Performance and intensity 5. The webpage records the reverse comparison automatically as 1/5.</p></article>
@@ -295,7 +304,7 @@ function renderIntro() {
   ${state.consent==='no'?'<p class="validation-summary">You have chosen not to participate. Close the page or change the selection if this was accidental.</p>':''}
   <div class="eligibility-panel">
     <p class="section-kicker">Eligibility screening</p>
-    <h2>Paper Two respondent requirements</h2>
+    <h2>Respondent eligibility requirements</h2>
     <p>Proceed only if you have at least two years of relevant experience, current or recent off-grid solar involvement, a decision-making or advisory role, enough time for your assigned modules, and no relevant project-level conflict.</p>
     <div class="field-grid">
       ${selectField("energy_experience","Relevant off-grid solar PV experience",p.energy_experience,[["","Select one"],["lt2","Fewer than 2 years"],["2_4","2–4 years"],["5_9","5–9 years"],["10_14","10–14 years"],["15plus","15 years or more"]],true)}
@@ -314,7 +323,7 @@ function renderIntro() {
     ${selectField("ahp_familiarity","Familiarity with AHP",p.ahp_familiarity,[["","Select one"],["none","No prior familiarity"],["basic","Basic familiarity"],["used","Have used AHP before"],["expert","Advanced or expert experience"]],true)}
     ${field("district","District or principal area of work",p.district,"Optional.",false)}
   </div>
-  ${p.stakeholder_group?`<div class="module-assignment"><strong>Your assigned modules:</strong> Sustainability dimensions, ${applicableBlocks().slice(1).map(b=>escapeHtml(b.title)).join(", ")}.</div>`:""}
+  ${p.stakeholder_group?`<div class="module-assignment"><p><strong>Your assigned modules:</strong> Sustainability dimensions, ${applicableBlocks().slice(1).map(b=>escapeHtml(b.title)).join(", ")}.</p><p><strong>Estimated completion time:</strong> ${escapeHtml(estimate.minutes)} for ${estimate.comparisons} pairwise comparisons, including time to read definitions and review consistency feedback. This is an estimate; the actual time depends on whether any judgements need reconsideration.</p></div>`:""}
   ${validationMessage?`<p class="validation-summary" role="alert">${escapeHtml(validationMessage)}</p>`:""}`;
 }
 
