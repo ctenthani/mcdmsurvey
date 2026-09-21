@@ -72,7 +72,7 @@ function wrapSvgText(text,max=25){const words=String(text).split(/\s+/),lines=[]
 function svgText(lines,x,y,opts={}){const anchor=opts.anchor||"middle",size=opts.size||17,weight=opts.weight||600,fill=opts.fill||"#092f38",gap=opts.gap||20;return `<text x="${x}" y="${y}" text-anchor="${anchor}" font-family="Arial, Helvetica, sans-serif" font-size="${size}" font-weight="${weight}" fill="${fill}">${lines.map((line,i)=>`<tspan x="${x}" dy="${i?gap:0}">${escapeXml(line)}</tspan>`).join("")}</text>`;}
 function renderFrameworkGraphic(){
   const root=window.FRAMEWORK?.[0];if(!root)return;
-  const width=1800,height=960,colWidth=274,gap=18,startX=33,dimY=150,dimH=90,itemY=290,itemH=104,itemGap=24;
+  const width=1800,height=1010,colWidth=274,gap=18,startX=33,dimY=150,dimH=112,itemY=320,itemH=104,itemGap=24;
   const colors=["#176b87","#c76c17","#9c3f78","#5d4e9b","#23856d","#9a6730"];
   const dimResult=lastResults?.results?.[0],weighted=graphicMode==="weighted";
   let svg=`<svg id="frameworkSvg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" aria-labelledby="frameworkTitle frameworkDesc"><title id="frameworkTitle">Malawi standalone solar PV sustainability framework</title><desc id="frameworkDesc">A hierarchy with one goal, six sustainability dimensions and twenty-seven subcriteria.</desc><rect width="100%" height="100%" fill="#ffffff"/><style>.line{stroke:#8aa1a5;stroke-width:2;fill:none}.dim{stroke-width:2}.criterion{fill:#fff;stroke-width:2}.pending{fill:#687b80}.weight{font:700 15px Arial,Helvetica,sans-serif}</style>`;
@@ -82,18 +82,20 @@ function renderFrameworkGraphic(){
     const block=window.FRAMEWORK[index+1],x=startX+index*(colWidth+gap),cx=x+colWidth/2,color=colors[index];
     const dimensionWeight=weighted&&dimResult?.complete?dimResult.weights[index]:null;
     const moduleResult=lastResults?.results?.[index+1];
+    const titleLines=wrapSvgText(`${block.code} ${dimension[1]}`,26),spineX=x-10,branchY=dimY+dimH+24,lastItemCenter=itemY+(block.items.length-1)*(itemH+itemGap)+itemH/2;
     svg+=`<path class="line" d="M${cx} 126 V${dimY}"/><rect class="dim" x="${x}" y="${dimY}" width="${colWidth}" height="${dimH}" rx="13" fill="${color}" stroke="${color}"/>`;
-    svg+=svgText(wrapSvgText(`${block.code} ${dimension[1]}`,26),cx,178,{size:17,weight:700,fill:"#ffffff",gap:19});
-    svg+=svgText([dimensionWeight==null?(weighted?"Weight pending":"Unweighted"):`Weight ${(dimensionWeight*100).toFixed(1)}%`],cx,224,{size:14,weight:700,fill:dimensionWeight==null&&weighted?"#ffe0a3":"#ffffff"});
+    svg+=svgText(titleLines,cx,177,{size:17,weight:700,fill:"#ffffff",gap:19});
+    svg+=svgText([dimensionWeight==null?(weighted?"Weight pending":"Unweighted"):`Weight ${(dimensionWeight*100).toFixed(1)}%`],cx,246,{size:14,weight:700,fill:dimensionWeight==null&&weighted?"#ffe0a3":"#ffffff"});
+    svg+=`<path class="line" d="M${cx} ${dimY+dimH} V${branchY} H${spineX} V${lastItemCenter}"/>`;
     block.items.forEach((item,itemIndex)=>{
       const y=itemY+itemIndex*(itemH+itemGap),local=weighted&&moduleResult?.complete?moduleResult.weights[itemIndex]:null,global=local!=null&&dimensionWeight!=null?local*dimensionWeight:null;
-      svg+=`<path class="line" d="M${cx} ${dimY+dimH} V${y}"/><rect class="criterion" x="${x}" y="${y}" width="${colWidth}" height="${itemH}" rx="11" stroke="${color}"/>`;
+      svg+=`<path class="line" d="M${spineX} ${y+itemH/2} H${x}"/><rect class="criterion" x="${x}" y="${y}" width="${colWidth}" height="${itemH}" rx="11" stroke="${color}"/>`;
       svg+=svgText(wrapSvgText(`${item[0].toUpperCase()} ${item[1]}`,28),cx,y+28,{size:15,weight:700,fill:"#092f38",gap:17});
       const label=!weighted?"Unweighted":local==null?"Weight pending":`Local ${(local*100).toFixed(1)}% · Global ${(global*100).toFixed(2)}%`;
       svg+=svgText([label],cx,y+88,{size:13,weight:700,fill:local==null?"#687b80":color});
     });
   });
-  svg+=`<text x="40" y="935" font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#526a70">${weighted?"Expert-weighted view: geometric aggregation of valid matrices with CR ≤ 0.10.":"Proposed source framework: weights are intentionally not assigned."}</text></svg>`;
+  svg+=`<text x="40" y="985" font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#526a70">${weighted?"Expert-weighted view: geometric aggregation of valid matrices with CR ≤ 0.10.":"Proposed source framework: weights are intentionally not assigned."}</text></svg>`;
   document.getElementById("frameworkGraphic").innerHTML=svg;
   document.getElementById("graphicStatus").textContent=weighted?(lastResults?"Showing the latest expert-weighted hierarchy; unavailable modules remain flagged.":"Expert-weighted view selected; weights will appear after valid submissions are available."):"Showing the complete proposed unweighted hierarchy.";
   document.getElementById("showUnweighted").classList.toggle("active",!weighted);
@@ -102,7 +104,7 @@ function renderFrameworkGraphic(){
 function frameworkSvgBlob(){const svg=document.getElementById("frameworkSvg");if(!svg)return null;return new Blob([`<?xml version="1.0" encoding="UTF-8"?>\n${new XMLSerializer().serializeToString(svg)}`],{type:"image/svg+xml;charset=utf-8"});}
 function saveBlob(blob,name){const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
 function downloadFrameworkSvg(){const blob=frameworkSvgBlob();if(blob)saveBlob(blob,`Malawi_Solar_PV_Framework_${graphicMode}.svg`);}
-function downloadFrameworkPng(){const blob=frameworkSvgBlob();if(!blob)return;const url=URL.createObjectURL(blob),image=new Image();image.onload=()=>{const canvas=document.createElement("canvas");canvas.width=3600;canvas.height=1920;const ctx=canvas.getContext("2d");ctx.fillStyle="#fff";ctx.fillRect(0,0,canvas.width,canvas.height);ctx.drawImage(image,0,0,canvas.width,canvas.height);URL.revokeObjectURL(url);canvas.toBlob(out=>{if(out)saveBlob(out,`Malawi_Solar_PV_Framework_${graphicMode}_high_resolution.png`);},"image/png");};image.src=url;}
+function downloadFrameworkPng(){const blob=frameworkSvgBlob();if(!blob)return;const url=URL.createObjectURL(blob),image=new Image();image.onload=()=>{const canvas=document.createElement("canvas");canvas.width=3600;canvas.height=2020;const ctx=canvas.getContext("2d");ctx.fillStyle="#fff";ctx.fillRect(0,0,canvas.width,canvas.height);ctx.drawImage(image,0,0,canvas.width,canvas.height);URL.revokeObjectURL(url);canvas.toBlob(out=>{if(out)saveBlob(out,`Malawi_Solar_PV_Framework_${graphicMode}_high_resolution.png`);},"image/png");};image.src=url;}
 function exportResults(){if(!lastResults)return;const lines=[["Dimension","Code","Criterion","Local weight","Global weight","Valid matrices","Status"],...lastResults.criteria.map(r=>[r.dimension,r.code,r.criterion,r.local??"",r.global??"",r.n,r.status])];const csv=lines.map(row=>row.map(v=>`"${String(v).replaceAll('"','""')}"`).join(',')).join('\n');const blob=new Blob([csv],{type:'text/csv'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='AHP_aggregated_framework.csv';a.click();URL.revokeObjectURL(url);}
 function escapeHtml(v){return String(v??"").replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[c]));}
 function escapeXml(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&apos;"}[c]));}
