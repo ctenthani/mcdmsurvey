@@ -197,6 +197,7 @@ input:focus, select:focus, textarea:focus, button:focus-visible { outline: 3px s
 .button.primary:hover { background: #056c65; }
 .button.secondary { color: var(--deep); border-color: #a9bcc0; background: white; }
 .button[disabled] { cursor: not-allowed; opacity: .5; }
+.preview-link { color: white; font-weight: 800; text-decoration: underline; text-underline-offset: 3px; }
 .validation-summary { margin-top: .75rem; color: var(--red); font-weight: 650; }
 .submission-card { padding: 1.2rem; margin: 1rem 0; border: 1px solid var(--line); border-radius: 14px; background: #f8fbfb; }
 .submission-card.success { background: var(--green-soft); border-color: #93cbb9; }

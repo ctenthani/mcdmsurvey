@@ -15,6 +15,10 @@ document.getElementById("showUnweighted").addEventListener("click",()=>{graphicM
 document.getElementById("showWeighted").addEventListener("click",()=>{graphicMode="weighted";renderFrameworkGraphic();});
 document.getElementById("downloadFrameworkSvg").addEventListener("click",downloadFrameworkSvg);
 document.getElementById("downloadFrameworkPng").addEventListener("click",downloadFrameworkPng);
+const clearConfirmation=document.getElementById("clearConfirmation");
+const clearSubmissions=document.getElementById("clearSubmissions");
+clearConfirmation.addEventListener("input",()=>{clearSubmissions.disabled=clearConfirmation.value!=="CLEAR ALL DATA";});
+clearSubmissions.addEventListener("click",clearAllSubmissions);
 renderFrameworkGraphic();
 loadLiveSubmissions();
 setInterval(loadLiveSubmissions,15000);
@@ -45,6 +49,35 @@ async function loadLiveSubmissions(){
   }finally{
     refreshing=false;
     button.disabled=false;
+  }
+}
+
+async function clearAllSubmissions(){
+  if(clearConfirmation.value!=="CLEAR ALL DATA")return;
+  if(!window.confirm("Permanently delete every received survey submission? This cannot be undone."))return;
+  clearSubmissions.disabled=true;
+  clearConfirmation.disabled=true;
+  const status=document.getElementById("clearStatus");
+  status.textContent="Deleting received submissions…";
+  try{
+    const response=await fetch("/.netlify/functions/survey-submissions",{method:"DELETE",credentials:"same-origin",headers:{"Content-Type":"application/json",Accept:"application/json"},body:JSON.stringify({confirmation:"CLEAR ALL DATA"})});
+    const payload=await response.json().catch(()=>({}));
+    if(!response.ok)throw new Error(payload.detail||payload.error||`Deletion returned ${response.status}.`);
+    lastResults=null;
+    localStorage.removeItem("ahpAggregatedFramework");
+    graphicMode="unweighted";
+    renderFrameworkGraphic();
+    document.getElementById("exportResults").disabled=true;
+    document.getElementById("ownerResults").innerHTML='<div class="result-block missing"><h2>No verified forms available</h2><p>All received survey submissions have been cleared. New verified submissions will appear here automatically.</p></div>';
+    document.getElementById("ownerStatus").innerHTML=`<span class="flag ok">Cleared</span> ${payload.deleted||0} submission${payload.deleted===1?'':'s'} permanently deleted.`;
+    status.textContent=`Completed at ${new Date(payload.clearedAt||Date.now()).toLocaleString()}.`;
+    clearConfirmation.value="";
+    document.querySelector(".danger-zone").open=false;
+  }catch(error){
+    status.textContent=`Clear failed: ${error.message}`;
+  }finally{
+    clearConfirmation.disabled=false;
+    clearSubmissions.disabled=clearConfirmation.value!=="CLEAR ALL DATA";
   }
 }
 

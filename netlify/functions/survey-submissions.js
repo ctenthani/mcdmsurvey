@@ -22,19 +22,49 @@ function ownerUser(context) {
   return user && roles.includes("owner") ? user : null;
 }
 
-async function apiFetch(path, token) {
+async function apiFetch(path, token, options = {}) {
   const result = await fetch(`${API_ROOT}${path}`, {
-    headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
+    method: options.method || "GET",
+    headers: { Authorization: `Bearer ${token}`, Accept: "application/json", ...(options.headers || {}) },
+    body: options.body,
   });
   if (!result.ok) {
     const detail = await result.text();
     throw new Error(`Netlify API returned ${result.status}${detail ? `: ${detail.slice(0, 180)}` : ""}`);
   }
-  return result.json();
+  if (result.status === 204) return null;
+  const text = await result.text();
+  return text ? JSON.parse(text) : null;
+}
+
+async function findForm(siteId, token) {
+  const forms = await apiFetch(`/sites/${encodeURIComponent(siteId)}/forms`, token);
+  return forms.find(item => item.name === FORM_NAME) || null;
+}
+
+async function deleteSubmissionState(formId, token, state) {
+  let deleted = 0;
+  for (let pass = 0; pass < 20; pass += 1) {
+    const stateQuery = state ? `&state=${encodeURIComponent(state)}` : "";
+    const batch = await apiFetch(`/forms/${encodeURIComponent(formId)}/submissions?per_page=100&page=1${stateQuery}`, token);
+    if (!batch.length) return deleted;
+    for (let start = 0; start < batch.length; start += 10) {
+      const group = batch.slice(start, start + 10);
+      await Promise.all(group.map(item => apiFetch(`/submissions/${encodeURIComponent(item.id)}`, token, { method: "DELETE" })));
+      deleted += group.length;
+    }
+  }
+  throw new Error(`Deletion stopped after ${deleted} submissions. Run the clear action again to remove any remaining records.`);
+}
+
+async function deleteAllSubmissions(formId, token) {
+  const verified = await deleteSubmissionState(formId, token, "");
+  const spam = await deleteSubmissionState(formId, token, "spam");
+  return { verified, spam, total: verified + spam };
 }
 
 exports.handler = async function handler(event, context) {
-  if (event.httpMethod !== "GET") return response(405, { error: "Method not allowed." });
+  if (!["GET", "DELETE"].includes(event.httpMethod)) return response(405, { error: "Method not allowed." });
   if (!ownerUser(context)) return response(403, { error: "Owner access is required." });
 
   const token = process.env.NETLIFY_ACCESS_TOKEN;
@@ -47,9 +77,24 @@ exports.handler = async function handler(event, context) {
   }
 
   try {
-    const forms = await apiFetch(`/sites/${encodeURIComponent(siteId)}/forms`, token);
-    const form = forms.find(item => item.name === FORM_NAME);
+    const form = await findForm(siteId, token);
     if (!form) return response(404, { error: `No Netlify Form named ${FORM_NAME} was found.` });
+
+    if (event.httpMethod === "DELETE") {
+      let body = {};
+      try { body = JSON.parse(event.body || "{}"); } catch (_) { return response(400, { error: "Invalid confirmation request." }); }
+      if (body.confirmation !== "CLEAR ALL DATA") {
+        return response(400, { error: "Type CLEAR ALL DATA to confirm permanent deletion." });
+      }
+      const deleted = await deleteAllSubmissions(form.id, token);
+      return response(200, {
+        form: { id: form.id, name: form.name },
+        deleted: deleted.total,
+        deletedVerified: deleted.verified,
+        deletedSpam: deleted.spam,
+        clearedAt: new Date().toISOString(),
+      });
+    }
 
     const submissions = [];
     const perPage = 100;

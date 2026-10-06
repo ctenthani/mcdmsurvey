@@ -141,6 +141,26 @@
 .csv-fallback { margin-top: 1rem; }
 .csv-fallback summary { cursor: pointer; color: var(--muted); font-weight: 750; }
 .csv-fallback .upload-zone { margin-top: .7rem; }
+.danger-zone { margin-top: 1rem; border-top: 1px solid var(--line); padding-top: 1rem; }
+.danger-zone summary { cursor: pointer; color: #9a2433; font-weight: 800; }
+.danger-zone-body { display: grid; gap: .7rem; margin-top: .8rem; padding: .9rem; border: 1px solid #e2a7ae; border-radius: 12px; background: #fff4f5; }
+.danger-zone-body p { margin: 0; }
+.danger-zone-body label { font-size: .88rem; font-weight: 750; }
+.button.danger { color: white; background: #a52c3a; border-color: #a52c3a; }
+.button.danger:hover:not([disabled]) { background: #84232e; }
+.preview-shell { width: min(1100px, calc(100% - 2rem)); margin: 2rem auto; }
+.preview-summary { display: flex; gap: .7rem; flex-wrap: wrap; margin: 1rem 0 1.5rem; }
+.preview-summary span { padding: .4rem .7rem; border-radius: 999px; color: var(--deep); background: var(--teal-soft); font-weight: 800; }
+.preview-profile { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: .7rem; margin-top: 1rem; }
+.preview-profile span { padding: .75rem; border: 1px solid var(--line); border-radius: 10px; background: #f8fbfb; }
+.preview-block { margin: 1rem 0; padding: 1.25rem; background: white; border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); }
+.preview-block h2 { margin-top: 0; }
+.preview-items { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: .7rem; margin: 1rem 0; }
+.preview-item { padding: .8rem; border-left: 4px solid var(--teal); background: #f7fbfb; }
+.preview-item strong { display: block; color: var(--deep); }
+.preview-item span { color: var(--muted); font-size: .9rem; }
+.preview-comparisons { margin: .8rem 0 0; padding-left: 1.4rem; }
+.preview-comparisons li { margin: .45rem 0; padding-left: .2rem; }
 .recent-table { margin-bottom: 1.4rem; }
 .recent-table td:first-child { white-space: nowrap; }
 .framework-graphic-panel { margin-top: 1.25rem; }
@@ -229,6 +249,7 @@
   }
   .graphic-heading { display: block; }
   .graphic-actions { justify-content: flex-start; }
+  .preview-profile, .preview-items { grid-template-columns: 1fr; }
 }
 
 .auth-shell {
